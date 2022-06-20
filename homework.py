@@ -37,9 +37,7 @@ logger.addHandler(handler)
 
 
 def send_message(bot, message):
-    """
-     Отправка сообщения в телеграм.
-    """
+    """Отправка сообщения в телеграм."""
     try:
         bot.send_message(TELEGRAM_CHAT_ID, text=message)
         logger.info(f'Соообщение отправлено в телеграм: {message}')
@@ -49,8 +47,8 @@ def send_message(bot, message):
 
 def get_api_answer(current_timestamp):
     """
-    Делает запрос на Практикум.Домашка API,
-    возвращает декодированный ответ json.
+    Делает запрос на Практикум.Домашка API.
+    Dозвращает декодированный ответ json.
     Изменяет размер времени в формате int в качестве параметра.
     """
     timestamp = current_timestamp or int(time.time())
@@ -116,9 +114,9 @@ def parse_status(homework):
 
 def check_tokens():
     """
-    Возвращает значение False, если одна из п
-    еременных TOKENS или CHAT_ID пуста.
-    Возвращает значение True, если PRACTICUM_TOKEN,
+    Возвращает значение False.
+    Если одна из переменных TOKENS или CHAT_ID пуста.
+    Возвращает значение True, если PRACTICUM_TOKEN.
     TELEGRAM_TOKEN или TELEGRAM_CHAT_ID не пусты.
     """
     variables = (PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID)
@@ -136,7 +134,6 @@ def check_tokens():
 
 def main():
     """Основная логика работы бота."""
-
     if not check_tokens():
         return
 
