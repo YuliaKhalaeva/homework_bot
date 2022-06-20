@@ -58,14 +58,14 @@ def get_api_answer(current_timestamp):
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=params)
     except requests.exceptions.RequestException:
-        msg = 'Не удается связаться с конечной точкой.'
-        raise HWPrException(msg)
+        message = 'Не удается связаться с конечной точкой.'
+        raise HWPrException(message)
 
     if response.status_code != HTTPStatus.OK:
-        msg = (f'Конечная точка {ENDPOINT} недоступна, '
-               f'http status: {response.status_code}'
-               )
-        raise HWPrException(msg)
+        message = (f'Конечная точка {ENDPOINT} недоступна, '
+                   f'http status: {response.status_code}'
+                   )
+        raise HWPrException(message)
 
     return response.json()
 
