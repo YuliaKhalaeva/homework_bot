@@ -55,17 +55,20 @@ def get_api_answer(current_timestamp):
     params = {'from_date': timestamp}
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=params)
+        if response.status_code != HTTPStatus.OK:
+            message = (f'http status: {response.status_code}')
+            logging.error(message)
+            raise HWPrException(message)
+        return response.json()
     except requests.exceptions.RequestException:
-        message = 'Не удается связаться с конечной точкой.'
+        message = (f'Конечная точка {ENDPOINT} недоступна')
         raise HWPrException(message)
-
-    if response.status_code != HTTPStatus.OK:
-        message = (f'Конечная точка {ENDPOINT} недоступна, '
-                   f'http status: {response.status_code}'
-                   )
+    except HWPrException as error:
+        message = f'API error: {error}'
+        logging.error(message)
         raise HWPrException(message)
-
-    return response.json()
+    finally:
+        logging.info('Запрос к API прошел успешно')
 
 
 def check_response(response):
@@ -119,17 +122,13 @@ def check_tokens():
     Возвращает значение True, если PRACTICUM_TOKEN.
     TELEGRAM_TOKEN или TELEGRAM_CHAT_ID не пусты.
     """
-    variables = (PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID)
-    for variable in variables:
-
-        if not variable:
-            logger.critical(
-                f'Переменная {variable} не определена. '
-                'Бот деактивирован'
-            )
-            return False
-
-    return True
+    return all(
+        [
+            PRACTICUM_TOKEN is not None,
+            TELEGRAM_TOKEN is not None,
+            TELEGRAM_CHAT_ID is not None,
+        ]
+    )
 
 
 def main():
@@ -153,7 +152,7 @@ def main():
                     prev_upd_time = upd_time
                     message = parse_status(homework)
                     send_message(bot, message)
-            current_timestamp = int(time.time())
+            current_timestamp = response['current_date']
 
         except HWPrException as error:
             message = f'Сбой в работе программы: {error}'
