@@ -55,20 +55,17 @@ def get_api_answer(current_timestamp):
     params = {'from_date': timestamp}
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=params)
-        if response.status_code != HTTPStatus.OK:
-            message = (f'http status: {response.status_code}')
-            logging.error(message)
-            raise HWPrException(message)
-        return response.json()
     except requests.exceptions.RequestException:
-        message = (f'Конечная точка {ENDPOINT} недоступна')
+        message = 'Не удается связаться с конечной точкой.'
         raise HWPrException(message)
-    except HWPrException as error:
-        message = f'API error: {error}'
-        logging.error(message)
+
+    if response.status_code != HTTPStatus.OK:
+        message = (f'Конечная точка {ENDPOINT} недоступна, '
+                   f'Код ответа: {response.status_code}.'
+                   f'Ошибка при запросе {params}'
+                   )
         raise HWPrException(message)
-    finally:
-        logging.info('Запрос к API прошел успешно')
+    return response.json()
 
 
 def check_response(response):
@@ -124,9 +121,9 @@ def check_tokens():
     """
     return all(
         [
-            PRACTICUM_TOKEN is not None,
-            TELEGRAM_TOKEN is not None,
-            TELEGRAM_CHAT_ID is not None,
+            PRACTICUM_TOKEN,
+            TELEGRAM_TOKEN,
+            TELEGRAM_CHAT_ID,
         ]
     )
 
